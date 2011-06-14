@@ -26,7 +26,6 @@
 -define(Type_Start, 1).
 -define(Type_Stop, 2).
 
--record(state, {}).
 start(Ip, Port) ->
         gen_amp_server:start(?MODULE, Ip, Port).
 
@@ -46,7 +45,8 @@ init(_) ->
 			"dictionary_rfc2869"
 	]),
 	eradius_acc:start(),
-	{ok, []}.
+	T = ets:new(radacc,[public, named_table]),
+	{ok, T}.
 
 handle_call(_Request, _From, State) ->
 	{reply, ok, State}.
@@ -54,7 +54,7 @@ handle_call(_Request, _From, State) ->
 handle_cast(_Request, State) ->
 	{noreply, State}.
 
-handle_info(Info, State) ->
+handle_info(_Info, State) ->
 	{noreply, State}.
 
 terminate(_Reason, _State) ->
@@ -66,6 +66,29 @@ code_change(_OldVsn, State, _Extra) ->
 'SendAccounting'(Params) when is_list(Params) ->
 	error_logger:warning_msg("Params: ~p~n", [Params]),
 
+	CallId = binary_to_list(proplists:get_value(callid, Params)),
+	CallLeg = binary_to_list(proplists:get_value(callleg, Params)),
+	Type = type_to_int(proplists:get_value(type, Params)),
+
+	ets:insert_new(radacc, {{{callid, CallId}, {calleg, CallLeg}, {type, Type}}, Params}),
+
+	case Type of
+		?Type_Start ->
+			send_acct(Params);
+		?Type_Stop ->
+			case ets:lookup(radacc, {{callid, CallId}, {calleg, CallLeg}, {type, ?Type_Start}}) of
+				[] ->
+					% Don't send - enqueue only
+					ok;
+				_ ->
+					send_acct(Params),
+					ets:delete(radacc, {{callid, CallId}, {calleg, CallLeg}, {type, ?Type_Start}}),
+					ets:delete(radacc, {{callid, CallId}, {calleg, CallLeg}, {type, ?Type_Stop}})
+			end
+	end,
+	{reply, noreply}.
+
+send_acct(Params) ->
 	Method = method_to_int(proplists:get_value(method, Params)),
 	Caller = binary_to_list(proplists:get_value(caller, Params, <<"Anonymous">>)),
 	Called = binary_to_list(proplists:get_value(called, Params)),
