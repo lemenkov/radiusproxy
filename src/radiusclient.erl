@@ -86,7 +86,7 @@ code_change(_OldVsn, State, _Extra) ->
 					ets:delete(radacc, {{callid, CallId}, {calleg, CallLeg}, {type, ?Type_Stop}})
 			end
 	end,
-	{reply, noreply}.
+	{reply_and_close, noreply}.
 
 send_acct(Params) ->
 	Method = method_to_int(proplists:get_value(method, Params)),
@@ -142,7 +142,7 @@ send_acct(Params) ->
 		?Type_Start -> eradius_acc:acc_start(Req);
 		?Type_Stop -> eradius_acc:acc_stop(Req)
 	end,
-	{reply, noreply}.
+	{reply_and_close, noreply}.
 
 % According to /usr/share/freeradius/dictionary.openser
 method_to_int (<<"Other">>) -> 0;
