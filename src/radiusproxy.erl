@@ -1,4 +1,4 @@
--module(radiusclient).
+-module(radiusproxy).
 
 -include_lib("eradius/include/eradius_lib.hrl").
 
@@ -19,19 +19,15 @@
 -export([terminate/2]).
 -export([code_change/3]).
 
--export([start/2]).
 -export([start_link/2]).
--export(['SendAccounting'/1]).
+-export(['SendAccounting'/2]).
 
 -define(Type_Start, 1).
 -define(Type_Stop, 2).
 
-start(Ip, Port) ->
-        gen_amp_server:start(?MODULE, Ip, Port).
-
-% radiusclient:start_link({127,0,0,1}, 8889).
+% radiusproxy:start_link({127,0,0,1}, 8889).
 start_link(Ip, Port) ->
-        gen_amp_server:start_link(?MODULE, Ip, Port).
+        gen_amp_sup:start_link(?MODULE, Ip, Port).
 
 init(_) ->
 	eradius_dict:start(),
@@ -63,7 +59,7 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
 	{ok, State}.
 
-'SendAccounting'(Params) when is_list(Params) ->
+'SendAccounting'(Params, State) when is_list(Params) ->
 	error_logger:warning_msg("Params: ~p~n", [Params]),
 
 	CallId = binary_to_list(proplists:get_value(callid, Params)),
@@ -86,7 +82,7 @@ code_change(_OldVsn, State, _Extra) ->
 					ets:delete(radacc, {{callid, CallId}, {calleg, CallLeg}, {type, ?Type_Stop}})
 			end
 	end,
-	{reply_and_close, noreply}.
+	{noreply_and_close, State}.
 
 send_acct(Params) ->
 	Method = method_to_int(proplists:get_value(method, Params)),
