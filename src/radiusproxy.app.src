@@ -1,6 +1,6 @@
 {application,radiusproxy,
  [{description,"ipPort RADIUS client proxy"},
-  {vsn,"0"},
+  {vsn,"%VSN%"},
   {modules,[]},
   {registered, []},
   {applications,[kernel,stdlib]}]}.
