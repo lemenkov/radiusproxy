@@ -99,8 +99,10 @@ send_acct(Params) ->
 	Source = binary_to_list(proplists:get_value(source, Params)),
 	Type = type_to_int(proplists:get_value(type, Params)),
 
+	{ok, RadiusServers} = application:get_env(radiusproxy, radius_servers),
+
 	Req = #rad_accreq{
-			servers = [[{213,248,23,169},13813,"G6egsMKs"]],
+			servers = RadiusServers,
 			login_time = erlang:now(),
 			std_attrs=[
 				{?Acct_Session_Id, CallId},

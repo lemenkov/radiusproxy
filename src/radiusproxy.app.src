@@ -3,4 +3,5 @@
   {vsn,"%VSN%"},
   {modules,[]},
   {registered, []},
+  {mod, {radiusproxy_app, []}},
   {applications,[kernel,stdlib]}]}.
