@@ -1,4 +1,4 @@
-{application,radiusclient,
+{application,radiusproxy,
  [{description,"ipPort RADIUS client proxy"},
   {vsn,"0"},
   {modules,[]},
