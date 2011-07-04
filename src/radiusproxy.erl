@@ -66,12 +66,18 @@ code_change(_OldVsn, State, _Extra) ->
 	CallLeg = binary_to_list(proplists:get_value(callleg, Params)),
 	Type = type_to_int(proplists:get_value(type, Params)),
 
-	ets:insert_new(radacc, {{{callid, CallId}, {calleg, CallLeg}, {type, Type}}, Params}),
-
 	case Type of
 		?Type_Start ->
-			send_acct(Params);
+			case ets:lookup(radacc, {{callid, CallId}, {calleg, CallLeg}, {type, ?Type_Start}}) of
+				[] ->
+					ets:insert_new(radacc, {{{callid, CallId}, {calleg, CallLeg}, {type, Type}}, Params}),
+					send_acct(Params);
+				_ ->
+					% Already sent
+					ok
+			end;
 		?Type_Stop ->
+			ets:insert_new(radacc, {{{callid, CallId}, {calleg, CallLeg}, {type, Type}}, Params}),
 			case ets:lookup(radacc, {{callid, CallId}, {calleg, CallLeg}, {type, ?Type_Start}}) of
 				[] ->
 					% Don't send - enqueue only
