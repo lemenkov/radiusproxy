@@ -27,6 +27,7 @@ install: all
 	install -D -p -m 0644 priv/$(NAME).config $(DESTDIR)/etc/$(NAME).config
 	install -D -p -m 0755 priv/$(NAME).init $(DESTDIR)/etc/rc.d/init.d/$(NAME)
 	install -D -p -m 0644 priv/$(NAME).sysconfig $(DESTDIR)/etc/sysconfig/$(NAME)
+	install -d $(DESTDIR)/var/lib/$(NAME)
 
 clean:
 	$(REBAR) clean $(REBAR_FLAGS)
