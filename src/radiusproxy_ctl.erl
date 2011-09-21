@@ -26,6 +26,8 @@
 -export([reload/0]).
 
 start() ->
+	error_logger:add_report_handler(erlsyslog, {0, "localhost", 514}),
+
 	application:start(radiusproxy).
 
 stop() ->

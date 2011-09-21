@@ -30,8 +30,6 @@ start_link(Ip, Port) ->
         gen_amp_sup:start_link(?MODULE, Ip, Port).
 
 init(_) ->
-	error_logger:add_report_handler(erlsyslog, {0, "localhost", 514}),
-
 	eradius_dict:start(),
 	eradius_dict:load_tables([
 			"dictionary",
