@@ -4,7 +4,6 @@
 
 -include_lib("eradius/include/dictionary.hrl").
 -include_lib("eradius/include/dictionary_cisco.hrl").
--include_lib("eradius/include/dictionary_ipport.hrl").
 -include_lib("eradius/include/dictionary_openser.hrl").
 -include_lib("eradius/include/dictionary_rfc2865.hrl").
 -include_lib("eradius/include/dictionary_rfc2866.hrl").
@@ -34,7 +33,6 @@ init(_) ->
 	eradius_dict:load_tables([
 			"dictionary",
 			"dictionary_cisco",
-			"dictionary_ipport",
 			"dictionary_openser",
 			"dictionary_rfc2865",
 			"dictionary_rfc2866",
@@ -120,7 +118,6 @@ send_acct(Params) ->
 				{?Sip_Method, Method},
 				{?Sip_From_Tag, FromTag},
 				{?Sip_To_Tag, ToTag},
-				{?Sip_Branch_ID, CallLeg},
 				{?Connect_Info, Source},
 				{?NAS_IP_Address, SipAddr},
 				{?NAS_Port, SipPort},
